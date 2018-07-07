@@ -1,7 +1,21 @@
+import os
 import numpy as np
 import tensorflow as tf
 from utils.general_utils import test_all_close
 
+# Control log message output
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
+# Set up device
+USE_GPU = True
+if USE_GPU:
+    DEVICE = '/device:GPU:0'
+else:
+    DEVICE = '/cpu:0'
+
+# Limit GPU memory allocation
+CONFIG = tf.ConfigProto()
+CONFIG.gpu_options.allow_growth = True
 
 def softmax(x):
     """
@@ -24,6 +38,8 @@ def softmax(x):
     """
 
     ### YOUR CODE HERE
+    out = tf.exp(x)
+    out /= tf.reduce_sum(out, axis=-1, keepdims=True)
     ### END YOUR CODE
 
     return out
@@ -64,19 +80,19 @@ def test_softmax_basic():
     Some simple tests of softmax to get you started.
     Warning: these are not exhaustive.
     """
-
-    test1 = softmax(tf.constant(np.array([[1001, 1002], [3, 4]]), dtype=tf.float32))
+    with tf.device(DEVICE):
+        test1 = softmax(tf.constant(np.array([[1001, 1002], [3, 4]]), dtype=tf.float32))
     with tf.Session() as sess:
             test1 = sess.run(test1)
     test_all_close("Softmax test 1", test1, np.array([[0.26894142, 0.73105858],
                                                       [0.26894142, 0.73105858]]))
 
     test2 = softmax(tf.constant(np.array([[-1001, -1002]]), dtype=tf.float32))
-    with tf.Session() as sess:
-            test2 = sess.run(test2)
+    with tf.Session(config=CONFIG) as sess:
+        test2 = sess.run(test2)
     test_all_close("Softmax test 2", test2, np.array([[0.73105858, 0.26894142]]))
 
-    print "Basic (non-exhaustive) softmax tests pass\n"
+    print("Basic (non-exhaustive) softmax tests pass\n")
 
 
 def test_cross_entropy_loss_basic():
@@ -86,15 +102,16 @@ def test_cross_entropy_loss_basic():
     """
     y = np.array([[0, 1], [1, 0], [1, 0]])
     yhat = np.array([[.5, .5], [.5, .5], [.5, .5]])
-
-    test1 = cross_entropy_loss(tf.constant(y, dtype=tf.int32), tf.constant(yhat, dtype=tf.float32))
-    with tf.Session() as sess:
+    
+    with tf.device(DEVICE):
+        test1 = cross_entropy_loss(tf.constant(y, dtype=tf.int32), tf.constant(yhat, dtype=tf.float32))
+    with tf.Session(config=CONFIG) as sess:
         test1 = sess.run(test1)
     expected = -3 * np.log(.5)
     test_all_close("Cross-entropy test 1", test1, expected)
 
-    print "Basic (non-exhaustive) cross-entropy tests pass"
+    print("Basic (non-exhaustive) cross-entropy tests pass")
 
 if __name__ == "__main__":
     test_softmax_basic()
-    test_cross_entropy_loss_basic()
+    #test_cross_entropy_loss_basic()
