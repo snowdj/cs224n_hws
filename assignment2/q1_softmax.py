@@ -70,6 +70,7 @@ def cross_entropy_loss(y, yhat):
     """
 
     ### YOUR CODE HERE
+    out = - tf.reduce_sum(tf.multiply(tf.to_float(y), tf.log(yhat)))
     ### END YOUR CODE
 
     return out
@@ -114,4 +115,4 @@ def test_cross_entropy_loss_basic():
 
 if __name__ == "__main__":
     test_softmax_basic()
-    #test_cross_entropy_loss_basic()
+    test_cross_entropy_loss_basic()
