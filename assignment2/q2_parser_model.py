@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import os
 import time
 import tensorflow as tf
@@ -245,7 +245,7 @@ def main(debug=True):
             print "- test UAS: {:.2f}".format(UAS * 100.0)
             print "Writing predictions"
             with open('q2_test.predicted.pkl', 'w') as f:
-                cPickle.dump(dependencies, f, -1)
+                pickle.dump(dependencies, f, -1)
             print "Done!"
 
 
