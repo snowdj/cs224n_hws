@@ -7,6 +7,7 @@ Q2(c): Recurrent neural nets for NER
 from __future__ import absolute_import
 from __future__ import division
 
+import os
 import argparse
 import logging
 import sys
@@ -17,6 +18,9 @@ import numpy as np
 logger = logging.getLogger("hw3.q2.1")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+# Control log message output
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 class RNNCell(tf.nn.rnn_cell.RNNCell):
     """Wrapper around our RNN cell implementation that allows us to play
@@ -62,7 +66,13 @@ class RNNCell(tf.nn.rnn_cell.RNNCell):
         # be defined elsewhere!
         with tf.variable_scope(scope):
             ### YOUR CODE HERE (~6-10 lines)
-            pass
+            W_x = tf.get_variable('W_x', shape=(self.input_size, self._state_size),
+                                  initializer=tf.contrib.layers.xavier_initializer())
+            W_h = tf.get_variable('W_h', shape=(self._state_size, self._state_size),
+                                  initializer=tf.contrib.layers.xavier_initializer())
+            b = tf.get_variable('b', shape=(self._state_size),
+                                initializer=tf.constant_initializer(0))
+            new_state = tf.nn.sigmoid(tf.matmul(inputs, W_x) + tf.matmul(state, W_h) + b)
             ### END YOUR CODE ###
         # For an RNN , the output and state are the same (N.B. this
         # isn't true for an LSTM, though we aren't using one of those in
