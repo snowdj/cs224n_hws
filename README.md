@@ -1,4 +1,4 @@
-## [CS224n](http://web.stanford.edu/class/cs224n/): Natural Language Processing with Deep Learning
+## [CS224n](http://web.stanford.edu/class/cs224n/): Natural Language Processing with Deep Learning (Winter 2018)
 My solution to assignments in Stanford CS224n: Natural Language Processing with Deep Learning (Winter 2018).
 
 **Note**: I adapted the starter codes to make them compatible with python 3. All codes were run in python 3 (rather than the officially supported version of python, i.e., python 2) unless clarified.
