@@ -7,6 +7,7 @@ Q3: Grooving with GRUs
 from __future__ import absolute_import
 from __future__ import division
 
+import os
 import argparse
 import logging
 import sys
@@ -17,6 +18,7 @@ import tensorflow as tf
 import numpy as np
 
 import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 from util import Progbar, minibatches
@@ -29,6 +31,9 @@ matplotlib.use('TkAgg')
 logger = logging.getLogger("hw3.q3")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+# Control log message output
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 class Config:
     """Holds model hyperparams and data information.
@@ -87,6 +92,8 @@ class SequencePredictor(Model):
 
         x = self.inputs_placeholder
         ### YOUR CODE HERE (~2-3 lines)
+        _, preds = tf.nn.dynamic_rnn(cell, x, dtype=tf.float32)
+        preds = tf.sigmoid(preds)
         ### END YOUR CODE
 
         return preds #state # preds
@@ -108,7 +115,7 @@ class SequencePredictor(Model):
         y = self.labels_placeholder
 
         ### YOUR CODE HERE (~1-2 lines)
-
+        loss = tf.reduce_mean(tf.nn.l2_loss(preds - y))
         ### END YOUR CODE
 
         return loss
@@ -146,7 +153,14 @@ class SequencePredictor(Model):
         # - Remember to clip gradients only if self.config.clip_gradients
         # is True.
         # - Remember to set self.grad_norm
-
+        grads_and_vars = optimizer.compute_gradients(loss)
+        grads, var = zip(*grads_and_vars)
+        if self.config.clip_gradients:
+            grads, self.grad_norm = tf.clip_by_global_norm(grads, self.config.max_grad_norm)
+            grads_and_vars = zip(grads, var)
+        else:
+            self.grad_norm = tf.global_norm(grads)
+        train_op = optimizer.apply_gradients(grads_and_vars)
         ### END YOUR CODE
 
         assert self.grad_norm is not None, "grad_norm was not set properly!"
